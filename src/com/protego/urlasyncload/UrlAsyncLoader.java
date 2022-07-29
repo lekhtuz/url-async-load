@@ -10,6 +10,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -22,15 +23,11 @@ public class UrlAsyncLoader {
 
 	private void run(String[] args) throws Exception {
 		if (args.length > 0) {
-			fileName = args[0];
+			fileName = Objects.requireNonNull(args[0], "Missing file name");
 		}
 		
 		if (args.length > 1) {
 			maxThreads = Integer.valueOf(args[1]);
-		}
-		
-		if (fileName == null) {
-			System.exit(-1);
 		}
 
 		System.out.println("maxThreads " + maxThreads);
@@ -47,7 +44,6 @@ public class UrlAsyncLoader {
 							.map(Builder::build)
 							.map(UrlAsyncLoader.this::getContent)
 							.map(UrlAsyncLoader.this::md5)
-							.map(UrlAsyncLoader.this::sleep)	// This is to debug parallelism.
 							.forEach(System.out::println);
 					} catch (IOException e) {
 					}
@@ -61,19 +57,6 @@ public class UrlAsyncLoader {
 	 */
 	public static void main(String[] args) throws Exception {
 		new UrlAsyncLoader().run(args);
-	}
-
-	/**
-	 * This is to debug parallelism.
-	 * 
-	 * @param uri
-	 */
-	private String sleep(String str) {
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-		}
-		return str;
 	}
 
 	/**
@@ -105,9 +88,7 @@ public class UrlAsyncLoader {
 	 */
 	private String md5(byte[] bytes) {
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(bytes);
-			return String.format("%032x", new BigInteger(1, md.digest()));
+			return String.format("%032x", new BigInteger(1, MessageDigest.getInstance("MD5").digest(bytes)));
 		} catch (Exception e) {
 			return(null);
 		}
