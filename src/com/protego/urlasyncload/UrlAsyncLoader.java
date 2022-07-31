@@ -46,6 +46,7 @@ public class UrlAsyncLoader {
 							.map(UrlAsyncLoader.this::md5)
 							.forEach(System.out::println);
 					} catch (IOException e) {
+						System.out.println("Input file does not exist.");
 					}
 			}
 		)
@@ -67,6 +68,7 @@ public class UrlAsyncLoader {
 			System.out.println("URI: " + uri);
 			return new URI(uri);
 		} catch (Exception e) {
+			System.out.println("URL is in invalid format.");
 			return(null);
 		}
 	}
@@ -79,6 +81,7 @@ public class UrlAsyncLoader {
 			System.out.println("getContent: " + req.uri().toString());
 			return HttpClient.newHttpClient().send(req, BodyHandlers.ofByteArray()).body();
 		} catch (Exception e) {
+			System.out.println("Error sending HTTP request.");
 			return(null);
 		}
 	}
@@ -90,6 +93,7 @@ public class UrlAsyncLoader {
 		try {
 			return String.format("%032x", new BigInteger(1, MessageDigest.getInstance("MD5").digest(bytes)));
 		} catch (Exception e) {
+			System.out.println("Unable to calculate MD5 hash.");
 			return(null);
 		}
 	}
